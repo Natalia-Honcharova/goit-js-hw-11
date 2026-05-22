@@ -1,0 +1,64 @@
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
+
+import { getImagesByQuery } from './js/pixabay-api';
+import {
+  createGallery,
+  clearGallery,
+  showLoader,
+  hideLoader,
+} from './js/render-functions';
+
+const form = document.querySelector('.search-form');
+const gallery = document.querySelector('.gallery');
+const loader = document.querySelector('.loader');
+
+let lightbox = new SimpleLightbox('.gallery a');
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const query = event.target.elements['search-text'].value.trim();
+
+  if (query === '') {
+    iziToast.error({
+      message: 'Please fill in the search field!',
+      position: 'topRight',
+    });
+
+    return;
+  }
+
+  clearGallery(gallery);
+  showLoader(loader);
+
+  try {
+    const images = await getImagesByQuery(query);
+
+    if (images.length === 0) {
+      iziToast.error({
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+        position: 'topRight',
+      });
+
+      return;
+    }
+
+    gallery.innerHTML = createGallery(images);
+
+    lightbox.refresh();
+  } catch (error) {
+    iziToast.error({
+      message: 'Something went wrong!',
+      position: 'topRight',
+    });
+  } finally {
+    hideLoader(loader);
+  }
+
+  form.reset();
+});
