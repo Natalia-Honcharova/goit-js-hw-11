@@ -1,12 +1,10 @@
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
 import { getImagesByQuery } from './js/pixabay-api';
+
 import {
-  createGallery,
+  renderGallery,
   clearGallery,
   showLoader,
   hideLoader,
@@ -15,8 +13,6 @@ import {
 const form = document.querySelector('.form');
 const gallery = document.querySelector('.gallery');
 const loader = document.querySelector('.loader');
-
-let lightbox = new SimpleLightbox('.gallery a');
 
 form.addEventListener('submit', async event => {
   event.preventDefault();
@@ -48,9 +44,7 @@ form.addEventListener('submit', async event => {
       return;
     }
 
-    gallery.innerHTML = createGallery(images);
-
-    lightbox.refresh();
+    renderGallery(images, gallery);
   } catch (error) {
     iziToast.error({
       message: 'Something went wrong!',
